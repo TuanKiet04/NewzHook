@@ -14,9 +14,9 @@ services:
       - N8N_BASIC_AUTH_USER=kietcorn
       - N8N_BASIC_AUTH_PASSWORD=kiietqo9204
       - TZ=Asia/Ho_Chi_Minh
-      - N8N_HOST=0.0.0.0         # Lắng nghe mọi IP trong Docker
-      - N8N_PORT=5678            # OK, không bắt buộc nhưng hợp lý
-      - N8N_PROTOCOL=http        # OK
+      - N8N_HOST=0.0.0.0 # Lắng nghe mọi IP trong Docker
+      - N8N_PORT=5678 # OK, không bắt buộc nhưng hợp lý
+      - N8N_PROTOCOL=http # OK
       - WEBHOOK_URL=https://99f7d50ed714.ngrok-free.app # Rất tốt nếu dùng webhook
       - N8N_RUNNERS_ENABLED=true
       - N8N_SECURE_COOKIE=false
@@ -27,7 +27,7 @@ services:
     restart: always
 
   postgres:
-    image: ankane/pgvector       # Hỗ trợ pgvector để dùng cho RAG
+    image: ankane/pgvector # Hỗ trợ pgvector để dùng cho RAG
     container_name: postgres
     #hostname: postgres
     ports:
@@ -43,7 +43,7 @@ services:
       - kietcorn-network
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER}"]
+      test: [ "CMD-SHELL", "pg_isready -U ${PG_USER}" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -78,7 +78,7 @@ services:
     image: ollama/ollama:latest
     container_name: ollama
     ports:
-      - "11435:11434"  # Dùng port 11435 để tránh xung đột với Ollama host
+      - "11435:11434" # Dùng port 11435 để tránh xung đột với Ollama host
     environment:
       - OLLAMA_HOST=0.0.0.0
       - OLLAMA_ORIGINS=*
@@ -87,14 +87,8 @@ services:
     networks:
       - kietcorn-network
     restart: always
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: 1
-              capabilities: [gpu]
-  
+    runtime: nvidia
+
   streamlit:
     build: ./streamlit-app
     container_name: streamlit
@@ -117,9 +111,9 @@ services:
       - "8088:4040"
     environment:
       - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
-    command: 
+    command:
       - "http"
-      - "n8n:5678"
+      - "fastapi:8000"
     networks:
       - kietcorn-network
     depends_on:
@@ -127,39 +121,39 @@ services:
     restart: always
 
   redis:
-    image: redis:7-alpine 
-    container_name: redis 
+    image: redis:7-alpine
+    container_name: redis
     #hostname: redis 
-    ports: 
-      - "6379:6379" 
-    volumes: 
+    ports:
+      - "6379:6379"
+    volumes:
       - redis_data:/data
     command: redis-server --appendonly yes --requirepass ${REDIS_PASS}
     networks:
-      - kietcorn-network 
+      - kietcorn-network
     restart: always
-    deploy: 
-      resources:
-       limits:
-        memory: 512M
-
-  redis-insight: 
-    image: redislabs/redisinsight:latest 
-    container_name: redis-insight 
-    depends_on: 
-      - redis 
-    ports: 
-      - "5540:5540" 
-    volumes: 
-      - redis_insight_data:/db 
-    networks: 
-      - kietcorn-network 
-    restart: always 
     deploy:
-     resources:
-      limits:
-       memory: 256M
-       
+      resources:
+        limits:
+          memory: 512M
+
+  redis-insight:
+    image: redislabs/redisinsight:latest
+    container_name: redis-insight
+    depends_on:
+      - redis
+    ports:
+      - "5540:5540"
+    volumes:
+      - redis_insight_data:/db
+    networks:
+      - kietcorn-network
+    restart: always
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -189,6 +183,8 @@ services:
       - POSTGRES_USER=${PG_USER}
       - POSTGRES_PASSWORD=${PG_PASS}
       - DATABASE_URL=postgresql://${PG_USER}:${PG_PASS}@postgres:5432/${PG_DB}
+      - HF_HOME=/root/.cache/huggingface
+      - TRANSFORMERS_CACHE=/root/.cache/huggingface
     depends_on:
       - postgres
     restart: always
@@ -197,7 +193,46 @@ services:
     # THÊM 2 DÒNG NÀY ĐỂ VIBECODE:
     volumes:
       - ./fastapi-app/app:/code/app
+      - ./fastapi-app/models:/code/models
+      - ./models_cache:/root/.cache/huggingface
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  vllm:
+    image: vllm/vllm-openai:latest
+    container_name: vllm
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+
+    shm_size: '8gb'
+    ports:
+      - "8888:8000"
+    volumes:
+      - ./models_cache:/root/.cache/huggingface
+    command: >
+      --model Qwen/Qwen2.5-7B-Instruct-AWQ --max-model-len 8192 --gpu-memory-utilization 0.85 --enforce-eager
+    networks:
+      - kietcorn-network
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+  test:
+    build: ./test
+    container_name: system_tester
+    volumes:
+      - ./test:/app
+    networks:
+      - kietcorn-network # Sửa từ summarize_network thành kietcorn-network
+    depends_on:
+      - fastapi
+      - postgres
+      - vllm # Nên thêm vllm vào nếu script test có gọi model
+      - ollama
+    profiles: [ "debug" ]
 
 volumes:
   my-n8n-data-example:
@@ -212,7 +247,7 @@ volumes:
   rabbitmq_data:
   rabbitmq_logs:
   openclaw_config:
-
+  test:
 
 networks:
   kietcorn-network:

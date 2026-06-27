@@ -1,0 +1,263 @@
+<!--onboarding.html-->
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup - NewzHook</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            color: #999;
+            font-size: 0.95rem;
+            font-weight: 400;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .topics-container {
+            margin-bottom: 2rem;
+        }
+
+        .topics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .topic-button {
+            padding: 1.5rem 1rem;
+            background: #000;
+            border: 2px solid #333;
+            color: #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .topic-button:hover {
+            border-color: #fff;
+        }
+
+        .topic-button.selected {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .selection-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid #333;
+            font-size: 0.85rem;
+            color: #999;
+        }
+
+        .selected-count {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .button-container {
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .button {
+            flex: 1;
+            padding: 1rem;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid #fff;
+        }
+
+        .button.submit {
+            background: #fff;
+            color: #000;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .button.submit.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .button.submit:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        @media (max-width: 640px) {
+            .title {
+                font-size: 1.5rem;
+            }
+
+            .topics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .button-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">NewzHook</div>
+            <div class="title">Choose your interest</div>
+            <div class="subtitle">Select 3-4 topics to personalize your feed</div>
+        </div>
+
+        <div class="topics-container">
+            <div class="topics-grid" id="topicsGrid">
+                <button class="topic-button" data-topic="Thời Sự">Thời Sự</button>
+                <button class="topic-button" data-topic="Pháp Luật">Pháp Luật</button>
+                <button class="topic-button" data-topic="Công Nghệ">Công Nghệ</button>
+                <button class="topic-button" data-topic="Kinh Tế">Kinh Tế</button>
+                <button class="topic-button" data-topic="Thể Thao">Thể Thao</button>
+                <button class="topic-button" data-topic="Giáo Dục">Giáo Dục</button>
+            </div>
+
+            <div class="selection-info">
+                <span>Selected: <span class="selected-count"><span id="count">0</span>/4</span></span>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button type="button" id="submitBtn" class="button submit">Continue</button>
+        </div>
+    </div>
+
+    <script>
+        const topicButtons = document.querySelectorAll('.topic-button');
+        const countSpan = document.getElementById('count');
+        const submitBtn = document.getElementById('submitBtn');
+        let selectedTopics = new Set();
+
+        topicButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const topic = button.dataset.topic;
+
+                if (selectedTopics.has(topic)) {
+                    selectedTopics.delete(topic);
+                    button.classList.remove('selected');
+                } else {
+                    if (selectedTopics.size < 4) {
+                        selectedTopics.add(topic);
+                        button.classList.add('selected');
+                    }
+                }
+
+                const count = selectedTopics.size;
+                countSpan.textContent = count;
+
+                if (count >= 3 && count <= 4) {
+                    submitBtn.classList.add('visible');
+                } else {
+                    submitBtn.classList.remove('visible');
+                }
+            });
+        });
+
+        submitBtn.addEventListener('click', async () => {
+            const topics = Array.from(selectedTopics);
+            submitBtn.textContent = 'processing...';
+            submitBtn.disabled = true;
+
+            try {
+                const response = await fetch('/onboarding', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ topics })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result && result.status === 'success') {
+                        window.location.href = '/news';
+                    } else {
+                        alert('Error: ' + (result.message || 'Something went wrong'));
+                        submitBtn.textContent = 'continue';
+                        submitBtn.disabled = false;
+                    }
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + (error.detail || 'Something went wrong'));
+                    submitBtn.textContent = 'continue';
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                alert('Connection error. Please try again.');
+                submitBtn.textContent = 'continue';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+
+</html>

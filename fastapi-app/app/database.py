@@ -1,19 +1,27 @@
 # app/database.py
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
+from sqlalchemy.orm import declarative_base
 
-# Lấy URL từ docker-compose
-DATABASE_URL = 'postgresql://kietcorn:kiietqo9204@10.6.21.3:5432/optimize'
+# Thay đổi postgresql:// thành postgresql+asyncpg:// để sử dụng asyncpg
+DATABASE_URL = 'postgresql+asyncpg://kietcorn:kiietqo9204@10.6.21.3:5432/optimize'
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_async_engine(DATABASE_URL, echo=True)
+
+AsyncSessionLocal = async_sessionmaker(
+    bind=engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autocommit=False,
+    autoflush=False,
+)
+
 Base = declarative_base()
 
-# Dependency để sử dụng trong các API
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# Dependency để sử dụng trong các API (Async version)
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+        finally:
+            await session.close()

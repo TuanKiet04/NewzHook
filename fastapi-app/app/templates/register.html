@@ -1,29 +1,192 @@
+<!--register.html-->
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
-    <title>Đăng ký - NewsPersona</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - NewzHook</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f1f5f9; margin: 0; }
-        .box { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 350px; }
-        h2 { text-align: center; color: #1e293b; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #10b981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-        .error { color: #ef4444; font-size: 0.85rem; text-align: center; }
-        .link { text-align: center; margin-top: 15px; font-size: 0.9rem; }
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .header {
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            letter-spacing: -1px;
+        }
+
+        .title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #999;
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .form {
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #fff;
+            background: #1a1a1a;
+        }
+
+        input::placeholder {
+            color: #666;
+        }
+
+        .error-message {
+            background: #1a0000;
+            border: 1px solid #333;
+            color: #ff6b6b;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        button {
+            width: 100%;
+            padding: 1rem;
+            background: #fff;
+            color: #000;
+            border: 1px solid #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        button:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .footer-link {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 2rem;
+        }
+
+        .footer-link a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                max-width: 100%;
+            }
+
+            .title {
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
+
 <body>
-    <div class="box">
-        <h2>Tạo tài khoản mới</h2>
-        <form action="/register" method="post">
-            <input type="text" name="username" placeholder="Tên đăng nhập" required>
-            <input type="email" name="email" placeholder="Email của bạn" required>
-            <input type="password" name="password" placeholder="Mật khẩu" required>
-            <button type="submit">Đăng ký ngay</button>
+    <div class="container">
+        <div class="header">
+            <div class="logo">NewzHook</div>
+            <div class="title">Sign up</div>
+            <div class="subtitle">Join the community today</div>
+        </div>
+
+        {% if error_msg %}
+        <div class="error-message">{{ error_msg }}</div>
+        {% endif %}
+
+        <form action="/register" method="post" class="form">
+            <div class="form-group">
+                <label>username</label>
+                <input type="text" name="username" placeholder="choose a username" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>email</label>
+                <input type="email" name="email" placeholder="your@email.com" required>
+            </div>
+            <div class="form-group">
+                <label>password</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit">Create Account</button>
         </form>
-        {% if error_msg %}<p class="error">{{ error_msg }}</p>{% endif %}
-        <div class="link">Đã có tài khoản? <a href="/login">Đăng nhập</a></div>
+
+        <div class="footer-link">
+            Already have an account? <a href="/login">Sign in</a>
+        </div>
     </div>
 </body>
+
 </html>

@@ -9,7 +9,11 @@ model_training/
 django-app/
 models/
 .vscode/
-
+test/
+monitoring/
+__pycache__/
+*.pyc
+venv/
 # ======================
 # MEDIA FILES
 # ======================
@@ -26,3 +30,13 @@ models/
 # SYSTEM FILES
 # ======================
 .DS_Store
+
+models/
+models_cache/
+
+*.gguf
+*.safetensors
+*.bin
+
+huggingface/
+cache/

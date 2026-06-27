@@ -1,319 +1,1057 @@
+<!--news.html-->
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NewsPersona - Không gian tin tức của bạn</title>
+    <title>NewzHook - Your NewsFeed</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap');
 
-        :root {
-            --primary: #2563eb;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --text-sub: #64748b;
-            --accent: #eff6ff;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
+            background: #000;
+            color: #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
             line-height: 1.6;
         }
 
-        /* Header chuyên nghiệp */
+        .rec-card:hover {
+            border-color: #555 !important;
+            background: rgba(255, 255, 255, 0.06) !important;
+            transform: translateY(-2px);
+        }
+
+        .rec-card:hover .rec-card-title {
+            color: #ffcc00 !important;
+        }
+
         header {
-            background: var(--card-bg);
-            border-bottom: 1px solid #e2e8f0;
-            padding: 1rem 5%;
+            border-bottom: 1px solid #333;
+            padding: 1.5rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 1000;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            background: #000;
+            z-index: 100;
         }
 
         .logo {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.5rem;
-            color: var(--primary);
-            text-decoration: none;
             font-weight: 700;
+            letter-spacing: -1px;
         }
 
-        .user-nav {
+        .user-section {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            gap: 2rem;
         }
 
-        .user-name {
-            font-weight: 500;
-            color: var(--text-main);
-            font-size: 0.95rem;
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
         }
 
         .logout-btn {
-            padding: 0.5rem 1rem;
-            background: #fee2e2;
-            color: #ef4444;
+            color: #fff;
             text-decoration: none;
-            border-radius: 8px;
             font-size: 0.85rem;
             font-weight: 600;
-            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid #333;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease;
         }
 
         .logout-btn:hover {
-            background: #fecaca;
+            border-color: #fff;
         }
 
-        /* Container chính */
-        main {
-            max-width: 1000px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+        .tabs {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 5%;
+        }
+
+        .tab-nav {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            padding: 2rem 0;
+            border-bottom: 1px solid #333;
+            margin-bottom: 3rem;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            color: #999;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab-btn:hover {
+            color: #fff;
+        }
+
+        .tab-btn.active {
+            color: #fff;
+            border-bottom-color: #fff;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .content-header {
+            margin-bottom: 2rem;
         }
 
         .section-title {
-            font-family: 'Playfair Display', serif;
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 2rem;
-            margin-bottom: 1.5rem;
-            border-left: 5px solid var(--primary);
-            padding-left: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
         }
 
-        /* Grid hiển thị bài báo */
-        .news-grid {
+        .section-subtitle {
+            color: #999;
+            font-size: 0.95rem;
+        }
+
+        .articles-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
         }
 
         .article-card {
-            background: var(--card-bg);
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.25rem;
-            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #333;
+            padding: 1.5rem;
+            transition: all 0.2s ease;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
         }
 
         .article-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            border-color: #fff;
         }
 
-        .topic-badge {
-            display: inline-block;
-            background: var(--accent);
-            color: var(--primary);
-            font-size: 0.75rem;
+        .article-topic {
+            font-size: 0.7rem;
             font-weight: 700;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            margin-bottom: 0.75rem;
             text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #999;
+            margin-bottom: 1rem;
         }
 
         .article-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.15rem;
-            margin: 0 0 0.75rem 0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
             line-height: 1.4;
+            letter-spacing: -0.3px;
         }
 
         .article-link {
-            color: var(--text-main);
+            color: #fff;
             text-decoration: none;
-            transition: color 0.2s;
         }
 
         .article-link:hover {
-            color: var(--primary);
+            text-decoration: underline;
         }
 
         .article-snippet {
+            color: #ccc;
             font-size: 0.9rem;
-            color: var(--text-sub);
             margin-bottom: 1rem;
+            flex-grow: 1;
             display: -webkit-box;
             -webkit-line-clamp: 3;
+            line-clamp: 3;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
         .article-footer {
-            font-size: 0.8rem;
-            color: #94a3b8;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 0.75rem;
+            border-top: 1px solid #333;
+            padding-top: 1rem;
             display: flex;
             justify-content: space-between;
+            font-size: 0.8rem;
+            color: #666;
         }
 
-        /* Nút bấm nổi */
-        .chat-button {
-            position: fixed; bottom: 30px; right: 30px;
-            width: 60px; height: 60px; background: var(--primary);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            color: white; font-size: 1.5rem; cursor: pointer;
-            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4); z-index: 1001;
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
         }
 
-        /* Khung Pop-up Chat */
-        .chat-popup {
-            position: fixed; bottom: 100px; right: 30px;
-            width: 350px; height: 450px; background: white;
-            border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-            display: none; flex-direction: column; overflow: hidden; z-index: 1001;
+        .empty-state-text {
+            color: #999;
+            font-size: 1rem;
         }
 
-        .chat-header {
-            background: var(--primary); color: white; padding: 15px;
-            display: flex; justify-content: space-between; align-items: center; font-weight: 600;
+        .ai-split-layout {
+            display: flex;
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            align-items: flex-start;
+            height: 75vh;
         }
 
-        .chat-header button { background: none; border: none; color: white; cursor: pointer; }
+        .ai-sidebar {
+            width: 350px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            max-height: 100%;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
 
-        .chat-content { flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; background: #f1f5f9; }
+        .ai-sidebar::-webkit-scrollbar {
+            width: 4px;
+        }
 
-        .msg { padding: 8px 12px; border-radius: 12px; max-width: 80 percent; font-size: 0.9rem; }
-        .bot { background: white; align-self: flex-start; border: 1px solid #e2e8f0; }
-        .user { background: var(--primary); color: white; align-self: flex-end; }
+        .ai-sidebar::-webkit-scrollbar-thumb {
+            background: #222;
+            border-radius: 4px;
+        }
 
-        .chat-input-area { padding: 10px; border-top: 1px solid #e2e8f0; display: flex; gap: 5px; }
-        .chat-input-area input { flex: 1; border: 1px solid #ddd; padding: 8px; border-radius: 5px; outline: none; }
-        .chat-input-area button { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .ai-sidebar::-webkit-scrollbar-thumb:hover {
+            background: #444;
+        }
 
+        .ai-chat-workspace {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            min-width: 0;
+        }
+
+        .chat-container {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.01);
+            border-radius: 8px;
+        }
+
+        @media (max-width: 900px) {
+            .ai-split-layout {
+                flex-direction: column;
+                height: auto;
+                gap: 1.5rem;
+            }
+
+            .ai-sidebar {
+                width: 100%;
+                max-height: none;
+                overflow-y: visible;
+                padding-right: 0;
+            }
+
+            .chat-container {
+                height: 60vh;
+            }
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            display: flex;
+        }
+
+        .message.bot {
+            justify-content: flex-start;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message-content {
+            max-width: 85%;
+            padding: 1.25rem 1.5rem;
+            border: 1px solid #333;
+            border-radius: 8px;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            word-break: break-word;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .message-content p {
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .message-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content ul,
+        .message-content ol {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            list-style-position: outside;
+        }
+
+        .message-content ul {
+            list-style-type: disc;
+        }
+
+        .message-content ol {
+            list-style-type: decimal;
+        }
+
+        .message-content li {
+            margin-bottom: 0.25rem;
+            line-height: 1.5;
+        }
+
+        .message-content code {
+            font-family: 'IBM Plex Mono', monospace;
+            background: rgba(255, 255, 255, 0.08);
+            padding: 0.15rem 0.35rem;
+            border-radius: 3px;
+            font-size: 0.9em;
+            word-break: break-all;
+        }
+
+        .message-content pre {
+            background: #111;
+            border: 1px solid #333;
+            padding: 1rem;
+            overflow-x: auto;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .message-content pre code {
+            background: none;
+            padding: 0;
+            border-radius: 0;
+            font-size: 0.85rem;
+            word-break: normal;
+        }
+
+        .message.bot .message-content {
+            background: rgba(255, 255, 255, 0.02);
+            color: #fff;
+        }
+
+        .message.user .message-content {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .chat-input-area {
+            border-top: 1px solid #333;
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: #111;
+            border: 1px solid #333;
+            color: #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #fff;
+            background: #1a1a1a;
+        }
+
+        .send-btn {
+            background: #fff;
+            color: #000;
+            border: 1px solid #fff;
+            font-family: 'IBM Plex Mono', monospace;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .send-btn:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 3rem 0;
+        }
+
+        .page-btn {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid #333;
+            color: #fff;
+            text-decoration: none;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .page-btn:hover {
+            border-color: #fff;
+        }
+
+        .page-btn.next {
+            background: #fff;
+            color: #000;
+        }
+
+        .page-btn.next:hover {
+            background: #000;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem 5%;
+            }
+
+            .user-section {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .section-title {
+                font-size: 1.5rem;
+            }
+
+            .articles-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .message-content {
+                max-width: 90%;
+            }
+
+            .tab-nav {
+                gap: 1rem;
+                font-size: 0.8rem;
+            }
+        }
     </style>
 </head>
-<body>
 
+<body>
     <header>
-        <a href="#" class="logo">📰 NewsPersona</a>
-        <div class="user-nav">
-            <span class="user-name">Chào, <b>{{ username }}</b></span>
-            <a href="/logout" class="logout-btn">Đăng xuất</a>
+        <a href="/news" class="logo">NewzHook</a>
+        <div class="user-section">
+            <div class="user-info">{{ username }}</div>
+            <a href="/logout" class="logout-btn">Logout</a>
         </div>
     </header>
 
-    <main>
-        <h2 class="section-title">Khám phá tin tức</h2>
-        
-        <div class="news-grid">
-            {% if articles %}
+    <div class="tabs">
+        <div class="tab-nav">
+            <button class="tab-btn active" onclick="switchTab('news-tab')">News Feed</button>
+            <button class="tab-btn" onclick="switchTab('recommended-tab')">For You</button>
+            <button class="tab-btn" onclick="switchTab('ai-tab')">AI Assistant</button>
+        </div>
+
+        <div id="news-tab" class="tab-content active">
+            <div class="content-header">
+                <h1 class="section-title">Your News Feed</h1>
+                <p class="section-subtitle">Latest stories from your interests</p>
+            </div>
+
+            <div class="articles-grid">
+                {% if articles %}
                 {% for art in articles %}
                 <div class="article-card" data-article-id="{{ art.id }}">
-                    <div>
-                        <span class="topic-badge">{{ art.topic }}</span>
-                        <h3 class="article-title">
-                            <a href="{{ art.url }}" target="_blank" class="article-link">
-                                {{ art.title }}
-                            </a>
-                        </h3>
-                        <p class="article-snippet">{{ art.snippet }}...</p>
-                    </div>
+                    <div class="article-topic">{{ art.topic }}</div>
+                    <h3 class="article-title">
+                        <a href="{{ art.url }}" target="_blank" class="article-link">{{ art.title }}</a>
+                    </h3>
+                    <p class="article-snippet">{{ art.snippet }}...</p>
                     <div class="article-footer">
-                        <span>🕒 {{ art.published_at }}</span>
+                        <span>{{ art.published_at }}</span>
                         <span>#{{ art.id }}</span>
                     </div>
                 </div>
                 {% endfor %}
-            {% else %}
-                <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                    <p style="color: var(--text-sub);">📭 Hiện chưa có bài báo nào để hiển thị.</p>
+                {% else %}
+                <div style="grid-column: 1/-1;" class="empty-state">
+                    <p class="empty-state-text">No articles found</p>
                 </div>
-            {% endif %}
-        </div>
-
-        <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem;">
-            {% if prev_page %}
-                <a href="/news?page={{ prev_page }}" style="padding: 10px 20px; background: #ddd; border-radius: 5px; text-decoration: none;">⬅️ Trang trước</a>
-            {% endif %}
-            <a href="/news?page={{ next_page }}" style="padding: 10px 20px; background: var(--primary); color: white; border-radius: 5px; text-decoration: none;">Trang sau ➡️</a>
-        </div>
-
-        <div id="chat-circle" class="chat-button">
-            💬
-        </div>
-        
-        <div id="chat-box" class="chat-popup">
-            <div class="chat-header">
-                <span>AI News Assistant</span>
-                <button id="close-chat">✖</button>
+                {% endif %}
             </div>
-            <div id="chat-messages" class="chat-content">
-                <div class="msg bot">Chào {{ username }}! Bạn muốn hỏi gì về tin tức hôm nay không?</div>
-            </div>
-            <div class="chat-input-area">
-                <input type="text" id="user-input" placeholder="Nhập câu hỏi...">
-                <button id="send-btn">Gửi</button>
+
+            <div class="pagination">
+                {% if prev_page %}
+                <a href="/news?page={{ prev_page }}" class="page-btn">← Previous</a>
+                {% endif %}
+                <a href="/news?page={{ next_page }}" class="page-btn next">Next →</a>
             </div>
         </div>
-    </main>
 
+        <div id="recommended-tab" class="tab-content">
+            <div class="content-header">
+                <h1 class="section-title">Personalized For You</h1>
+                <p class="section-subtitle">Curated stories based on your interests</p>
+            </div>
+
+            <div id="recommended-grid" class="articles-grid">
+                <div style="grid-column: 1/-1;" class="empty-state">
+                    <p class="empty-state-text">Preparing your recommendations...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="ai-tab" class="tab-content">
+            <div class="content-header">
+                <h1 class="section-title">AI Assistant</h1>
+                <p class="section-subtitle">Ask questions and get insights about the news</p>
+            </div>
+
+            <div class="ai-split-layout">
+                <!-- LEFT SIDEBAR -->
+                <div class="ai-sidebar">
+                    <!-- Dynamic System Prompt Panel (Visualizing Persona Adaptation for Thesis Demo) -->
+                    <div class="custom-prompt-panel"
+                        style="border: 1px solid #333; border-radius: 8px; padding: 1rem; background: rgba(255,255,255,0.02); transition: all 0.3s ease; width: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;"
+                            onclick="toggleSystemPrompt()">
+                            <span
+                                style="font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>🛡️</span> System Prompt
+                            </span>
+                            <span id="system-toggle-arrow" style="font-size: 0.8rem; color: #888;">[-] Collapse</span>
+                        </div>
+                        <div id="system-prompt-content"
+                            style="display: block; margin-top: 1rem; border-top: 1px solid #222; padding-top: 1rem;">
+                            <!-- Badge Stats Row -->
+                            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+                                <div
+                                    style="font-size: 0.75rem; color: #888; display: flex; align-items: center; gap: 0.25rem;">
+                                    <span>Mode:</span>
+                                    <strong id="active-mode-badge"
+                                        style="background: rgba(255,204,0,0.12); color: #ffcc00; padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px dashed rgba(255,204,0,0.3); font-size: 0.72rem;">{{
+                                        active_prompt_mode }}</strong>
+                                </div>
+                                <div
+                                    style="font-size: 0.75rem; color: #888; display: flex; align-items: center; gap: 0.25rem;">
+                                    <span>Turns:</span>
+                                    <strong id="turn-count-badge"
+                                        style="background: rgba(0,204,102,0.12); color: #00cc66; padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px dashed rgba(0,204,102,0.3); font-size: 0.72rem;">{{
+                                        turn_count }} / 5</strong>
+                                </div>
+                            </div>
+                            <!-- System Prompt Output (Read-Only Visualization) -->
+                            <textarea id="custom-system-prompt-input" readonly
+                                style="width: 100%; height: 180px; border: 1px solid #222; font-family: monospace; font-size: 0.82rem; background: rgba(0,0,0,0.35); color: #88aaff; padding: 0.5rem; border-radius: 4px; resize: none; line-height: 1.4; outline: none;"
+                                placeholder="System prompt evolves here...">{{ active_system_prompt }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- User Instruction Override Panel -->
+                    <div class="custom-prompt-panel"
+                        style="border: 1px solid #333; border-radius: 8px; padding: 1rem; background: rgba(255,255,255,0.02); transition: all 0.3s ease; width: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;"
+                            onclick="toggleCustomPrompt()">
+                            <span
+                                style="font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                                <span>⚙️</span> User Override
+                            </span>
+                            <span id="toggle-arrow" style="font-size: 0.8rem; color: #888;">[+] Expand</span>
+                        </div>
+                        <div id="custom-prompt-content"
+                            style="display: none; margin-top: 1rem; border-top: 1px solid #222; padding-top: 1rem;">
+                            <div
+                                style="margin-bottom: 0.75rem; font-size: 0.75rem; color: #888; display: flex; align-items: center; gap: 0.25rem;">
+                                <span>Override:</span>
+                                <strong id="override-status-badge"
+                                    style="background: rgba(255,51,51,0.12); color: #ff3333; padding: 0.15rem 0.4rem; border-radius: 4px; border: 1px dashed rgba(255,51,51,0.3); font-size: 0.72rem;">{{
+                                    override_active }}</strong>
+                            </div>
+                            <p style="font-size: 0.78rem; color: #999; margin-bottom: 0.75rem; line-height: 1.4;">
+                                Provide custom rules (e.g. "reply poetically") to override style behavior.
+                            </p>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <textarea id="custom-instruction-input" class="chat-input"
+                                    style="width: 100%; height: 180px; resize: vertical; border-color: #333; padding: 0.5rem; line-height: 1.4; font-family: monospace; font-size: 0.82rem;"
+                                    placeholder="e.g. Reply poetically in Vietnamese...">{{ custom_instruction or '' }}</textarea>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button onclick="saveCustomInstruction()" class="send-btn"
+                                        style="flex: 1; padding: 0.5rem; font-size: 0.8rem;">Save</button>
+                                    <button onclick="clearCustomInstruction()" class="send-btn"
+                                        style="flex: 1; padding: 0.5rem; background: #222; border-color: #333; color: #fff; font-size: 0.8rem;">Clear</button>
+                                </div>
+                            </div>
+                            <div id="custom-prompt-status"
+                                style="font-size: 0.8rem; margin-top: 0.50rem; color: #ffcc00; display: none;">Custom
+                                prompt updated!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT MAIN PANEL -->
+                <div class="ai-chat-workspace">
+                    <div class="chat-container">
+                        <div class="chat-messages" id="chat-messages">
+                            <div class="message bot">
+                                <div class="message-content">
+                                    hello {{ username }}! I'm here to help you understand the news better. Ask me
+                                    anything about
+                                    the articles or topics you're interested in.
+                                </div>
+                            </div>
+                            {% if chat_history %}
+                            {% for turn in chat_history %}
+                            <div class="message user">
+                                <div class="message-content">{{ turn.message }}</div>
+                            </div>
+                            <div class="message bot">
+                                <div class="message-content markdown-body">{{ turn.response }}</div>
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" id="user-input" class="chat-input" placeholder="ask me something...">
+                            <button id="send-btn" class="send-btn">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
-        // JS thu thập hành vi click ngầm
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            if (tabId === 'ai-tab') {
+                setTimeout(() => document.getElementById('user-input').focus(), 300);
+            }
+            if (tabId === 'recommended-tab') {
+                fetchRecommendedNews();
+            }
+        }
+
+        async function fetchRecommendedNews() {
+            const grid = document.getElementById('recommended-grid');
+            try {
+                const response = await fetch('/recommended-news');
+                const articles = await response.json();
+
+                if (!articles || articles.length === 0) {
+                    grid.innerHTML = `<div style="grid-column: 1/-1;" class="empty-state">
+                        <p class="empty-state-text">complete your profile to see recommendations</p>
+                    </div>`;
+                    return;
+                }
+
+                grid.innerHTML = articles.map(art => `
+                    <div class="article-card">
+                        <div class="article-topic">${art.topic}</div>
+                        <h3 class="article-title">
+                            <a href="${art.url}" target="_blank" class="article-link">${art.title}</a>
+                        </h3>
+                        <p class="article-snippet">${art.snippet}</p>
+                        <div class="article-footer">
+                            <span>${art.published_at}</span>
+                            <span>recommended</span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                grid.innerHTML = `<div style="grid-column: 1/-1;" class="empty-state">
+                    <p class="empty-state-text">error loading recommendations</p>
+                </div>`;
+            }
+        }
+
         document.querySelectorAll('.article-link').forEach(link => {
-            link.addEventListener('click', function() {
+            link.addEventListener('click', function () {
                 const articleId = this.closest('.article-card').dataset.articleId;
-                fetch(`/log-interaction/${articleId}`, { method: 'POST' })
-                .then(r => r.json())
-                .then(data => console.log("Recorded:", data))
-                .catch(e => console.error("Log error:", e));
+                fetch(`/log-interaction/${articleId}`, { method: 'POST' }).catch(e => { });
             });
         });
 
-        const chatCircle = document.getElementById('chat-circle');
-        const chatBox = document.getElementById('chat-box');
-        const closeChat = document.getElementById('close-chat');
         const sendBtn = document.getElementById('send-btn');
         const userInput = document.getElementById('user-input');
-        const chatMessages = document.getElementById('chat-messages');
+        const messages = document.getElementById('chat-messages');
 
-        // Đóng/Mở Chat
-        chatCircle.onclick = () => chatBox.style.display = 'flex';
-        closeChat.onclick = () => chatBox.style.display = 'none';
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendBtn.click();
+        });
 
-        // Gửi tin nhắn
         sendBtn.onclick = async () => {
             const text = userInput.value.trim();
             if (!text) return;
 
-            // Hiển thị tin nhắn user
-            appendMessage(text, 'user');
+            const userMsg = document.createElement('div');
+            userMsg.className = 'message user';
+            userMsg.innerHTML = `<div class="message-content">${text}</div>`;
+            messages.appendChild(userMsg);
+            messages.scrollTop = messages.scrollHeight;
+
             userInput.value = '';
 
-            // Gọi API của FastAPI (chúng ta sẽ viết ở bước 3)
+            const loadingMsg = document.createElement('div');
+            loadingMsg.className = 'message bot';
+            loadingMsg.innerHTML = `<div class="message-content" style="color: #999;">thinking...</div>`;
+            messages.appendChild(loadingMsg);
+            messages.scrollTop = messages.scrollHeight;
+
             try {
                 const response = await fetch('/chat', {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: text })
                 });
                 const data = await response.json();
-                appendMessage(data.response, 'bot');
+                messages.removeChild(loadingMsg);
+
+                const botMsg = document.createElement('div');
+                botMsg.className = 'message bot';
+
+                // Add beautiful metadata details for demo mode
+                let metaHtml = '';
+                if (data.active_prompt_mode) {
+                    let metricsHtml = '';
+                    if (data.metrics) {
+                        const topChunksHtml = data.metrics.top_chunks.map((c, i) => `
+                            <div style="padding-left: 0.5rem; border-left: 1px solid rgba(255,255,255,0.1); margin-top: 0.25rem;">
+                                <span style="color: #4499ff; font-weight: bold;">[${i + 1}] ${c.title}</span><br/>
+                                <span style="color: #666; font-size: 0.65rem;">sim: ${c.similarity.toFixed(4)} | <a href="${c.url}" target="_blank" style="color: #888; text-decoration: underline;">source</a></span>
+                            </div>
+                        `).join('');
+
+                        metricsHtml = `
+                            <details style="margin-top: 0.5rem; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); border-radius: 4px; padding: 0.4rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; width: 100%;">
+                                <summary style="cursor: pointer; color: #888; font-weight: bold; outline: none;">[DEBUG] RAG Metrics & Observability (Click to expand)</summary>
+                                <div style="margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.2rem; color: #aaa; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.4rem;">
+                                    <div>⚡ Embedding Latency: <b style="color: #ff9900;">${data.metrics.embed_latency.toFixed(3)}s</b> (E5 Multilingual)</div>
+                                    <div>🔍 Retrieval Latency: <b style="color: #ff9900;">${data.metrics.retrieval_latency.toFixed(3)}s</b> (dangtuan DB)</div>
+                                    <div>⚙️ Generation Latency: <b style="color: #ff9900;">${data.metrics.generation_latency.toFixed(3)}s</b> (vLLM Qwen)</div>
+                                    <div>🎯 Avg Similarity: <b style="color: #00cc66;">${data.metrics.avg_similarity.toFixed(4)}</b></div>
+                                    <div style="margin-top: 0.4rem; font-weight: bold; color: #888;">Top Retrieved Chunks:</div>
+                                    ${topChunksHtml}
+                                </div>
+                            </details>
+                        `;
+                    }
+
+                    metaHtml = `
+                        <div style="margin-top: 0.5rem; padding-top: 0.25rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.72rem; color: #777; display: flex; flex-direction: column; gap: 0.5rem; width: 100%;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <span style="background: rgba(255,255,255,0.03); padding: 0.1rem 0.4rem; border-radius: 4px; border: 1px solid #222;">Mode: <b style="color: #bbb;">${data.active_prompt_mode}</b></span>
+                                <span style="background: rgba(255,255,255,0.03); padding: 0.1rem 0.4rem; border-radius: 4px; border: 1px solid #222;">Source: <b style="color: #ffcc00;">${data.log_source}</b></span>
+                            </div>
+                            ${metricsHtml}
+                        </div>
+                    `;
+                }
+
+                botMsg.innerHTML = `<div class="message-content" style="width: 100%;">${marked.parse(data.response)}${metaHtml}</div>`;
+                messages.appendChild(botMsg);
+                messages.scrollTop = messages.scrollHeight;
+
+                // Update live prompt visualization panel fields dynamically
+                if (data.active_prompt_mode) {
+                    const badge = document.getElementById('active-mode-badge');
+                    if (badge) badge.textContent = data.active_prompt_mode;
+                }
+                if (data.turn_count !== undefined) {
+                    const turnBadge = document.getElementById('turn-count-badge');
+                    if (turnBadge) {
+                        if (data.turn_count > 5) {
+                            turnBadge.textContent = `${data.turn_count} (Evolved)`;
+                            turnBadge.style.color = '#00cc66';
+                            turnBadge.style.background = 'rgba(0,204,102,0.15)';
+                        } else {
+                            turnBadge.textContent = `${data.turn_count} / 5`;
+                        }
+                    }
+                }
+                if (data.active_system_prompt) {
+                    const systemTextarea = document.getElementById('custom-system-prompt-input');
+                    if (systemTextarea) systemTextarea.value = data.active_system_prompt;
+                }
+                if (data.override_active) {
+                    const overrideBadge = document.getElementById('override-status-badge');
+                    if (overrideBadge) {
+                        overrideBadge.textContent = data.override_active;
+                        if (data.override_active === 'Yes') {
+                            overrideBadge.style.color = '#ff3333';
+                            overrideBadge.style.background = 'rgba(255,51,51,0.15)';
+                        } else {
+                            overrideBadge.style.color = '#888';
+                            overrideBadge.style.background = 'rgba(255,255,255,0.05)';
+                        }
+                    }
+                }
+
+                if (data.show_recommendation_popup && data.recommendations && data.recommendations.length > 0) {
+                    showRecommendationModal(data.recommendations);
+                }
             } catch (e) {
-                appendMessage("Lỗi kết nối server rồi!", 'bot');
+                messages.removeChild(loadingMsg);
+                const errMsg = document.createElement('div');
+                errMsg.className = 'message bot';
+                errMsg.innerHTML = `<div class="message-content" style="color: #999;">sorry, something went wrong. try again.</div>`;
+                messages.appendChild(errMsg);
+                messages.scrollTop = messages.scrollHeight;
             }
         };
 
-        function appendMessage(text, side) {
-            const div = document.createElement('div');
-            div.className = `msg ${side}`;
-            div.innerText = text;
-            chatMessages.appendChild(div);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-}
+        // Custom Prompt Override Helpers
+        function toggleCustomPrompt() {
+            const content = document.getElementById('custom-prompt-content');
+            const arrow = document.getElementById('toggle-arrow');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.textContent = '[-] Collapse';
+            } else {
+                content.style.display = 'none';
+                arrow.textContent = '[+] Expand';
+            }
+        }
+
+        async function saveCustomInstruction() {
+            const inputVal = document.getElementById('custom-instruction-input').value;
+            const status = document.getElementById('custom-prompt-status');
+
+            try {
+                const response = await fetch('/save-custom-instruction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ instruction: inputVal })
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    status.textContent = "Custom prompt saved successfully!";
+                    status.style.color = "#00cc66";
+                    status.style.display = "block";
+                    setTimeout(() => status.style.display = "none", 3000);
+
+                    // Update badges in real time
+                    const overrideBadge = document.getElementById('override-status-badge');
+                    if (overrideBadge) {
+                        overrideBadge.textContent = 'Yes';
+                        overrideBadge.style.color = '#ff3333';
+                        overrideBadge.style.background = 'rgba(255,51,51,0.15)';
+                    }
+                    const modeBadge = document.getElementById('active-mode-badge');
+                    if (modeBadge) {
+                        modeBadge.textContent = 'USER_CUSTOM_INSTRUCTION';
+                    }
+                } else {
+                    status.textContent = "Error saving custom prompt.";
+                    status.style.color = "#ff3333";
+                    status.style.display = "block";
+                }
+            } catch (err) {
+                status.textContent = "Error saving custom prompt.";
+                status.style.color = "#ff3333";
+                status.style.display = "block";
+            }
+        }
+
+        async function clearCustomInstruction() {
+            const input = document.getElementById('custom-instruction-input');
+            const status = document.getElementById('custom-prompt-status');
+
+            try {
+                const response = await fetch('/clear-custom-instruction', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                if (data.status === 'success') {
+                    input.value = '';
+                    status.textContent = "Custom prompt cleared successfully!";
+                    status.style.color = "#ffcc00";
+                    status.style.display = "block";
+                    setTimeout(() => status.style.display = "none", 3000);
+
+                    // Reset override badges
+                    const overrideBadge = document.getElementById('override-status-badge');
+                    if (overrideBadge) {
+                        overrideBadge.textContent = 'No';
+                        overrideBadge.style.color = '#888';
+                        overrideBadge.style.background = 'rgba(255,255,255,0.05)';
+                    }
+                    // Evolve mode badge back based on current turn count
+                    const turnBadge = document.getElementById('turn-count-badge');
+                    const modeBadge = document.getElementById('active-mode-badge');
+                    if (turnBadge && modeBadge) {
+                        const evolved = turnBadge.textContent.includes('Evolved');
+                        modeBadge.textContent = evolved ? 'REFINED_SYSTEM_PROMPT' : 'INITIAL_PERSONA_PROMPT';
+                    }
+                } else {
+                    status.textContent = "Error clearing custom prompt.";
+                    status.style.color = "#ff3333";
+                    status.style.display = "block";
+                }
+            } catch (err) {
+                status.textContent = "Error clearing custom prompt.";
+                status.style.color = "#ff3333";
+                status.style.display = "block";
+            }
+        }
+
+        // System Prompt Collapsible Handler
+        function toggleSystemPrompt() {
+            const content = document.getElementById('system-prompt-content');
+            const arrow = document.getElementById('system-toggle-arrow');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                arrow.textContent = '[-] Collapse';
+            } else {
+                content.style.display = 'none';
+                arrow.textContent = '[+] Expand';
+            }
+        }
+
+        // Recommendation Modal Helpers
+        function showRecommendationModal(recs) {
+            const list = document.getElementById('modal-recommendations-list');
+            list.innerHTML = recs.map((r, idx) => `
+                <a href="${r.url}" target="_blank" class="rec-card" style="display: block; padding: 1rem; border: 1px solid #222; border-radius: 8px; background: rgba(255,255,255,0.02); text-decoration: none; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(0,0,0,0.15); width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; margin-bottom: 0.25rem;">
+                        <span style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: #ffcc00; border: 1px solid rgba(255,204,0,0.3); padding: 0.15rem 0.4rem; border-radius: 4px;">Rec #${idx + 1}</span>
+                    </div>
+                    <div style="font-size: 0.95rem; font-weight: 600; color: #fff; line-height: 1.4; transition: color 0.3s ease;" class="rec-card-title">${r.title}</div>
+                    <div style="font-size: 0.8rem; color: #888; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.25rem;">
+                        <span>🔗</span> Read article
+                    </div>
+                </a>
+            `).join('');
+
+            document.getElementById('recommendation-modal').style.display = 'flex';
+        }
+
+        function closeRecommendationModal() {
+            document.getElementById('recommendation-modal').style.display = 'none';
+        }
+
+        // Hydrate persisted chat history (parse Markdown & scroll to bottom)
+        window.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.message.bot .message-content.markdown-body').forEach(el => {
+                const rawMarkdown = el.textContent || el.innerText;
+                el.innerHTML = marked.parse(rawMarkdown.trim());
+            });
+            const chatMessages = document.getElementById('chat-messages');
+            if (chatMessages) {
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }
+        });
     </script>
+
+    <!-- Beautiful Recommendation Modal Pop-up -->
+    <div id="recommendation-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div
+            style="background: #111; border: 1px solid #333; border-radius: 12px; width: 90%; max-width: 500px; padding: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.5); position: relative; animation: fadeIn 0.3s ease;">
+            <span onclick="closeRecommendationModal()"
+                style="position: absolute; top: 1rem; right: 1rem; cursor: pointer; color: #888; font-size: 1.2rem; font-weight: bold; transition: color 0.2s;">&times;</span>
+            <div
+                style="font-weight: 700; text-transform: uppercase; font-size: 0.95rem; letter-spacing: 1px; color: #ffcc00; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span>💡</span> Recommended Articles
+            </div>
+            <p
+                style="font-size: 0.85rem; color: #aaa; margin-bottom: 1.5rem; line-height: 1.4; font-style: italic; background: rgba(255,204,0,0.05); padding: 0.75rem; border-radius: 6px; border-left: 3px solid #ffcc00;">
+                Recommendations updated based on recent conversation activity
+            </p>
+            <div id="modal-recommendations-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Render cards here -->
+            </div>
+            <button onclick="closeRecommendationModal()"
+                style="margin-top: 1.5rem; width: 100%; padding: 0.75rem; background: #222; border: 1px solid #333; color: #fff; border-radius: 6px; font-weight: bold; cursor: pointer; transition: all 0.2s; border-color: #444;">Close</button>
+        </div>
+    </div>
+
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
 </body>
+
 </html>
